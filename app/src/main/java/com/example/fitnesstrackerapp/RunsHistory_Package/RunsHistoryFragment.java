@@ -21,9 +21,9 @@ import android.widget.Toast;
 
 import com.example.fitnesstrackerapp.R;
 
-public class RunsHistory extends Fragment implements RunsHistoryContract.View {
+public class RunsHistoryFragment extends Fragment implements RunsHistoryContract.View {
 
-    private static RunsHistory INSTANCE = null;
+    private static RunsHistoryFragment INSTANCE = null;
     RunsHistoryPresenter presenter;
     RecyclerView recyclerView;
     TextView emptyView;
@@ -38,9 +38,9 @@ public class RunsHistory extends Fragment implements RunsHistoryContract.View {
         return view;
     }
 
-    public static RunsHistory getInstance(){
+    public static RunsHistoryFragment getInstance(){
         if(INSTANCE == null){
-            INSTANCE = new RunsHistory();
+            INSTANCE = new RunsHistoryFragment();
         }
         return INSTANCE;
     }

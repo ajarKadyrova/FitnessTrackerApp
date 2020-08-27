@@ -2,14 +2,11 @@ package com.example.fitnesstrackerapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.fitnesstrackerapp.CurrentRun_Package.CurrentRun;
-import com.example.fitnesstrackerapp.RunsHistory_Package.RunsHistory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

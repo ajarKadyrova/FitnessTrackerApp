@@ -7,8 +7,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.example.fitnesstrackerapp.CurrentRun_Package.CurrentRun;
-import com.example.fitnesstrackerapp.RunsHistory_Package.RunsHistory;
+import com.example.fitnesstrackerapp.CurrentRun_Package.CurrentRunFragment;
+import com.example.fitnesstrackerapp.RunsHistory_Package.RunsHistoryFragment;
 
 public class FragmentsAdapter extends FragmentPagerAdapter {
 
@@ -23,9 +23,9 @@ public class FragmentsAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 0){
-            return RunsHistory.getInstance();
+            return RunsHistoryFragment.getInstance();
         } else if(position == 1){
-            return CurrentRun.getInstance();
+            return CurrentRunFragment.getInstance();
         }
         else return null;
     }

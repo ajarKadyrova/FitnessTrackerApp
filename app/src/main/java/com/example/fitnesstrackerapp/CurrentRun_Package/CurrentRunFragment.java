@@ -42,10 +42,10 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentRunContract.View {
+public class CurrentRunFragment extends Fragment implements OnMapReadyCallback, CurrentRunContract.View {
 
     private static final int TAG_CODE_PERMISSION_LOCATION = 1;
-    private static CurrentRun INSTANCE = null;
+    private static CurrentRunFragment INSTANCE = null;
     CurrentRunPresenter presenter;
     FusedLocationProviderClient client;
     Handler handler = new Handler();
@@ -76,9 +76,9 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
         return view;
     }
 
-    public static CurrentRun getInstance() {
+    public static CurrentRunFragment getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new CurrentRun();
+            INSTANCE = new CurrentRunFragment();
         }
         return INSTANCE;
     }
@@ -156,7 +156,7 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
             public void onSuccess(Location location) {
                 if (location != null) {
                     currentLocation = location;
-                    mapView.getMapAsync(CurrentRun.this);
+                    mapView.getMapAsync(CurrentRunFragment.this);
                 }
             }
         });
@@ -193,7 +193,6 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
         PolygonOptions polygonOptions = new PolygonOptions();
         polygonOptions.fillColor(Color.RED);
         polygonOptions.strokeWidth(5);
-
         for (int i = 0; i < length; i++ ){
             polygonOptions.add(new LatLng(locations.get(i).getLatitude(), locations.get(i).getLongitude()));
         }
@@ -202,17 +201,15 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
         distance = distance + result;
         if (distance == 0){
             speed = 0;
+            calories = 0;
         }
         else {
             speed = ((distance * 1000) / speedOnTime);
-            distanceTextView.setText(distance + " km");
-            speedTextView.setText(speed + " m/s");
             calories = distance * 65;
+            distanceTextView.setText(distance + " km");
+            speedTextView.setText(speed + " m/sec");
             caloriesTextView.setText(calories + "cal");
         }
-        distanceTextView.setText(distance + " km");
-        speedTextView.setText(speed + "m/s");
-        caloriesTextView.setText(calories + "cal");
     }
 
     private void finishChronometer() {
@@ -221,8 +218,8 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
         stopButton.setText("Stop");
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
         Date date = new Date();
-        presenter.insert(new Item(distance, time, speed, calories, formatter.format(date)));
-        locations.clear();
+        Item item = new Item(distance, time, speed, calories, formatter.format(date));
+        presenter.insert(item);
         Toast.makeText(getContext(), "Your run's data is saved", Toast.LENGTH_SHORT).show();
     }
 
