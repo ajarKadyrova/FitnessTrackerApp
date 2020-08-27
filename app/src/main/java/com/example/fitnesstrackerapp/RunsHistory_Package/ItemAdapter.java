@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Chronometer;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,22 +56,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         TextView distance;
         TextView time;
         TextView speed;
-        TextView calories;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            distance = itemView.findViewById(R.id.distance_textView);
-            //time = itemView.findViewById(R.id.);
-            speed = itemView.findViewById(R.id.speed_textView);
-            calories = itemView.findViewById(R.id.calories_textView);
+            date = itemView.findViewById(R.id.date_rv);
+            distance = itemView.findViewById(R.id.distance_rv);
+            time = itemView.findViewById(R.id.time_rv);
+            speed = itemView.findViewById(R.id.speed_rv);
         }
 
         public void bind(Item item) {
             date.setText(item.getDate());
-            distance.setText(Double.toString(item.getDistance()) + " km");
+            distance.setText(Double.valueOf(item.getDistance()) + " km");
             time.setText(item.getTime());
-            speed.setText(item.getSpeed() + " /km");
-            calories.setText(item.getCalories() + " cal");
+            speed.setText(Double.valueOf(item.getSpeed()) + " /km");
         }
     }
 }

@@ -12,5 +12,6 @@ public interface RunsHistoryContract {
 
     interface Presenter{
         List<Item> getAllItems();
+        void deleteAll();
     }
 }

@@ -2,14 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingTop="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="5dp">
 
     <TextView
-        android:id="@+id/history_date_text_view"
+        android:id="@+id/date_rv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="20202-Aug-24"
+        tools:text="2020-Aug-24"
         android:textSize="20sp"
         android:textColor="#000000"/>
 
@@ -31,9 +35,10 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/distance_rv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1.5 km"
+                tools:text="1.5 km"
                 android:textColor="#000000"
                 android:textSize="25sp" />
         </LinearLayout>
@@ -47,13 +52,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pace"
+                android:text="Speed"
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/speed_rv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.75 /km"
+                tools:text="0.75 /km"
                 android:textColor="#000000"
                 android:textSize="25sp" />
         </LinearLayout>
@@ -71,9 +77,10 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/time_rv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="17 min"
+                tools:text="17 min"
                 android:textColor="#000000"
                 android:textSize="25sp" />
         </LinearLayout>

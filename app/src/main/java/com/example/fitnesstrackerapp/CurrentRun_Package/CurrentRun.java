@@ -2,6 +2,7 @@ package com.example.fitnesstrackerapp.CurrentRun_Package;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -10,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.fitnesstrackerapp.Item;
 import com.example.fitnesstrackerapp.R;
@@ -29,12 +32,15 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentRunContract.View {
 
@@ -42,18 +48,18 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
     private static CurrentRun INSTANCE = null;
     CurrentRunPresenter presenter;
     FusedLocationProviderClient client;
+    Handler handler = new Handler();
+    ArrayList<Location> locations = new ArrayList<>();
+    Task<Location> locationTask;
+    Location currentLocation;
     View view;
     GoogleMap map;
     MapView mapView;
-    TextView distanceTextView;
-    TextView speedTextView;
-    TextView caloriesTextView;
-    double distance = 0;
+    TextView distanceTextView, speedTextView, caloriesTextView;
+    double distance = 0, speed = 0, speedOnTime, calories = 0;
     String time;
-    double speed = 0;
-    double calories = 0;
-    Button startButton;
-    Button stopButton;
+    long sTime, dTime;
+    Button startButton, stopButton;
     Chronometer chronometer;
     private boolean chronometerIsOn;
     private long pauseOffset;
@@ -66,7 +72,6 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_current_run, container, false);
         return view;
     }
@@ -82,7 +87,7 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //presenter = new CurrentRunPresenter(this, );
+        presenter = new CurrentRunPresenter(this, getContext());
 
         mapView = view.findViewById(R.id.mapView);
         if (mapView != null) {
@@ -108,19 +113,53 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopChronometer();
+                if(stopButton.getText() == "Stop" ){
+                    stopChronometer();
+                }
+                else if(stopButton.getText() == "Finish"){
+                    finishChronometer();
+                }
             }
         });
+
+        distanceTextView.setText("0.0");
+        speedTextView.setText("0.0");
+        caloriesTextView.setText("0");
+
     }
 
     private void startChronometer() {
         if (!chronometerIsOn) {
             startButton.setVisibility(View.GONE);
             stopButton.setVisibility(View.VISIBLE);
+            stopButton.setText("Stop");
             chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
             chronometer.start();
             chronometerIsOn = true;
+            getLocation();
+            locations.add(currentLocation);
+            //runnable.run();
         }
+    }
+
+//    private Runnable runnable = new Runnable() {
+//        @Override
+//        public void run() {
+//
+//            handler.postDelayed(this, 5000);
+//        }
+//    };
+
+    private void getLocation(){
+        locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+                    mapView.getMapAsync(CurrentRun.this);
+                }
+            }
+        });
     }
 
     private void stopChronometer() {
@@ -132,12 +171,59 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
             startButton.setText("Resume");
             stopButton.setVisibility(View.VISIBLE);
             stopButton.setText("Finish");
-            if (stopButton.isPressed()){
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM dd");
-                Date date = new Date();
-                presenter.insert(new Item(distance, time, speed, calories, formatter.format(date)));
-            }
+            //handler.removeCallbacks(runnable);
         }
+        dTime = pauseOffset - sTime;
+        long hours = TimeUnit.MILLISECONDS.toHours(dTime);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(dTime) - hours *60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(dTime) - hours *60 * 60 - minutes * 60 ;
+        time = hours+"h:" + minutes +"m:" + seconds + "s";
+        speedOnTime = (int) dTime / 1000;
+        getLocation();
+        locations.add(currentLocation);
+
+        double startLat = locations.get(0).getLatitude();
+        double startLong = locations.get(0).getLongitude();
+        double endLat = locations.get(1).getLatitude();
+        double endLong = locations.get(1).getLongitude();
+        float result = 0;
+        Location.distanceBetween(startLat, startLong, endLat, endLong, new float[]{result});
+
+        int length = locations.size();
+        PolygonOptions polygonOptions = new PolygonOptions();
+        polygonOptions.fillColor(Color.RED);
+        polygonOptions.strokeWidth(5);
+
+        for (int i = 0; i < length; i++ ){
+            polygonOptions.add(new LatLng(locations.get(i).getLatitude(), locations.get(i).getLongitude()));
+        }
+        map.addPolygon(polygonOptions);
+
+        distance = distance + result;
+        if (distance == 0){
+            speed = 0;
+        }
+        else {
+            speed = ((distance * 1000) / speedOnTime);
+            distanceTextView.setText(distance + " km");
+            speedTextView.setText(speed + " m/s");
+            calories = distance * 65;
+            caloriesTextView.setText(calories + "cal");
+        }
+        distanceTextView.setText(distance + " km");
+        speedTextView.setText(speed + "m/s");
+        caloriesTextView.setText(calories + "cal");
+    }
+
+    private void finishChronometer() {
+        startButton.setText("Start");
+        stopButton.setVisibility(View.GONE);
+        stopButton.setText("Stop");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        Date date = new Date();
+        presenter.insert(new Item(distance, time, speed, calories, formatter.format(date)));
+        locations.clear();
+        Toast.makeText(getContext(), "Your run's data is saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -151,21 +237,19 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
                         PackageManager.PERMISSION_GRANTED) {
 
             client = LocationServices.getFusedLocationProviderClient(getContext());
-
-            Task<Location> task = client.getLastLocation();
-            task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            locationTask = client.getLastLocation();
+            locationTask.addOnSuccessListener(new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(final Location location) {
                     if (location != null) {
+                        currentLocation = location;
                         mapView.getMapAsync(new OnMapReadyCallback() {
                             @Override
                             public void onMapReady(GoogleMap googleMap) {
-                                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                                MarkerOptions options = new MarkerOptions().position(latLng).title("I am there");
-
-                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
-
+                                LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                                MarkerOptions options = new MarkerOptions().position(latLng).title("I am here");
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                                 googleMap.addMarker(options);
                             }
                         });
@@ -173,8 +257,6 @@ public class CurrentRun extends Fragment implements OnMapReadyCallback, CurrentR
                 }
             });
             map.setMyLocationEnabled(true);
-
-
         } else {
             ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{
                             Manifest.permission.ACCESS_FINE_LOCATION,

@@ -29,10 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottom_navigation_bar);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new RunsHistory())
-                .commit();
     }
 
     private ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
@@ -50,10 +46,8 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     bottomNav.getMenu().findItem(R.id.nav_current_run).setChecked(true);
                     break;
-
             }
         }
-
         @Override
         public void onPageScrollStateChanged(int state) {
 
@@ -64,19 +58,15 @@ public class MainActivity extends AppCompatActivity {
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Fragment selectedFragment = null;
-
                     switch (menuItem.getItemId()) {
                         case R.id.nav_home:
-                            selectedFragment = new RunsHistory();
+                            viewPager.setCurrentItem(0);
                             break;
 
                         case R.id.nav_current_run:
-                            selectedFragment = new CurrentRun();
+                            viewPager.setCurrentItem(1);
                             break;
                     }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            selectedFragment).commit();
                     return true;
                 }
             };

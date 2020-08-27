@@ -12,4 +12,15 @@
         android:layout_height="wrap_content"
         tools:listitem="@layout/list_run"/>
 
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="There's no any run history"
+        android:textSize="22sp"
+        android:textColor="#000000"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_gravity="center_horizontal|center_vertical"/>
+
 </FrameLayout>
